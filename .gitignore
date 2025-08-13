@@ -1,0 +1,20 @@
+# Godot-specific files
+.import/
+.export/
+.export-* 
+mono/
+
+# debug and releases folders
+*debug/
+*releases/
+
+# OS-specific junk
+.DS_Store
+Thumbs.db
+
+# Temporary or build files
+*.tmp
+*.log
+*.import
+*.zip
+*.tar.gz
