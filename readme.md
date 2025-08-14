@@ -26,7 +26,7 @@ flowchart LR
 
 ## 🔧 Installation
 1. Install the [VostokMods Mod Loader](https://modworkshop.net/mod/49779)
-2. Download the .ZIP of my mod either from Github or ModWorkshop website
+2. Download the .ZIP of my mod either from [__Github__](https://github.com/pepedu02/LetMeSleep/releases) or [__ModWorkshop__](https://modworkshop.net/mod/53439?tab=downloads) website
 3. Move the downloaded .ZIP to the *mods* folder in your game installation
 4. Launch the game and have fun !
 
