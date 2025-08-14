@@ -42,7 +42,7 @@ flowchart LR
 ---
 
 ## ⚙️ Debug Mode
-The Sofa_Leather.gs scripts use a single `DEBUG` toggle to enable/disable prints.  
+The Sofa_Leather.gd scripts use a single `DEBUG` toggle to enable/disable prints.  
 To enable verbose logs:
 ```gdscript
 const DEBUG = true
