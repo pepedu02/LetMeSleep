@@ -18,6 +18,8 @@ var weather_choices = [
     {"id": 3, "chance": 15}, # Rain
     {"id": 4, "chance": 15}  # Storm
 ]
+var fade_rect: ColorRect = null
+var fade_tween: Tween = null
 
 # ===== FUNCTIONS =====
 func _ready():
@@ -37,12 +39,17 @@ func _ready():
         if settings == null:
             _debug("Settings failed to load or be found!")
 
+    # Create fade rect dynamically if not already present
+    _ensure_fade_rect()
+
 
 func Interact():
     """
     Called when the player interacts (e.g., sleeps).
     Updates time-of-day, weather, and applies these changes to the game world.
     """
+
+    await fade_out(1.0)  # fade to black
 
     _debug("Current TOD before change: %s" % preferences.TOD)
     preferences.TOD = next_phase.get(preferences.TOD, 1)
@@ -66,6 +73,7 @@ func Interact():
     else:
         _debug("Settings node is null, world not updated.")
 
+    await fade_in(1.0)  # fade to black
 
 func UpdateTooltip():
     """
@@ -112,6 +120,61 @@ func _find_settings():
                 return found
     return null
 
+func fade_out(duration: float = 1.0) -> void:
+    """
+    Gradually fades the screen to black over `duration` seconds.
+    Freezes player movement while fading. Uses a ColorRect overlay with a tween.
+    """
+    _ensure_fade_rect()
+    fade_rect.visible = true
+    fade_rect.color.a = 0.0
+
+    gameData.freeze = true  # Prevent player movement during fade.
+
+    if fade_tween:
+        fade_tween.kill()  # Stop any ongoing fade to avoid conflicts.
+
+    fade_tween = get_tree().create_tween()  # Create a new tween.
+    fade_tween.tween_property(fade_rect, "color:a", 1.0, duration)
+    # Animate alpha from 0 → 1 over the given duration.
+    await fade_tween.finished  # Wait until the fade is complete.
+
+
+func fade_in(duration: float = 1.0) -> void:
+    """
+    Gradually fades the screen from black to visible over `duration` seconds.
+    Unfreezes player movement immediately. Hides the overlay after fading.
+    """
+    _ensure_fade_rect()
+    fade_rect.visible = true
+    fade_rect.color.a = 1.0
+
+    gameData.freeze = false  # Allow player movement again.
+
+    if fade_tween:
+        fade_tween.kill()  # Stop any ongoing fade to avoid conflicts.
+
+    fade_tween = get_tree().create_tween()  # Create a new tween.
+    fade_tween.tween_property(fade_rect, "color:a", 0.0, duration)
+    # Animate alpha from 1 → 0 over the given duration.
+    await fade_tween.finished  # Wait until the fade is complete.
+    fade_rect.visible = false  # Hide the overlay once done.
+
+
+func _ensure_fade_rect():
+    """
+    Ensures the fade overlay exists and is properly configured.
+    Creates a ColorRect that covers the screen and blocks input if needed.
+    """
+    if fade_rect == null or not is_instance_valid(fade_rect):
+        fade_rect = ColorRect.new()
+        fade_rect.name = "FadeRect"
+        fade_rect.color = Color(0, 0, 0, 0)  # Transparent black
+        fade_rect.visible = false
+        fade_rect.set_anchors_preset(Control.PRESET_FULL_RECT)  # Fill screen
+        fade_rect.mouse_filter = Control.MOUSE_FILTER_STOP  # Block input
+        get_tree().root.add_child(fade_rect)  # Add to scene tree
+        fade_rect.move_to_front()  # Keep on top of all UI
 
 # ===== DEBUG HELPER =====
 func _debug(message: String):
